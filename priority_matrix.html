@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Priority Matrix</title>
+<style>
+  :root{
+    --bg: #ffffff;
+    --paper: #fafafa;
+    --line: #e8e8e6;
+    --ink: #1a1a1a;
+    --ink-soft: #6b6b6b;
+    --ink-faint: #a8a8a8;
+
+    --q1: #c0392b;
+    --q2: #1d6f5c;
+    --q3: #b8860b;
+    --q4: #5b5b5b;
+
+    --radius: 10px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 28px 80px;
+  }
+
+  header{
+    display:flex;
+    align-items:baseline;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  h1{
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .subtitle{
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+
+  .count-pill{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 5px 12px;
+    white-space: nowrap;
+  }
+
+  .grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 760px){
+    .grid{ grid-template-columns: 1fr; }
+  }
+
+  .quadrant{
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    min-height: 220px;
+  }
+
+  .q-head{
+    display:flex;
+    align-items:center;
+    gap: 9px;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .q-dot{
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .q1 .q-dot{ background: var(--q1); }
+  .q2 .q-dot{ background: var(--q2); }
+  .q3 .q-dot{ background: var(--q3); }
+  .q4 .q-dot{ background: var(--q4); }
+
+  .q-title{
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  .q-sub{
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-left: auto;
+  }
+
+  .q-body{
+    padding: 10px 12px 12px;
+    flex: 1;
+    display:flex;
+    flex-direction: column;
+  }
+
+  .task-list{
+    list-style:none;
+    margin: 0 0 8px;
+    padding: 0;
+    display:flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 4px;
+  }
+
+  .task{
+    display:flex;
+    align-items:flex-start;
+    gap: 9px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 9px 10px;
+    font-size: 13.5px;
+    line-height: 1.4;
+    cursor: default;
+    animation: fadeIn .18s ease;
+  }
+
+  @keyframes fadeIn{
+    from{ opacity:0; transform: translateY(-3px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .task input[type=checkbox]{
+    margin-top: 2px;
+    width: 15px; height: 15px;
+    flex-shrink: 0;
+    accent-color: var(--ink);
+    cursor: pointer;
+  }
+
+  .task-text{
+    flex: 1;
+    word-break: break-word;
+  }
+
+  .task-date{
+    font-size: 11px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .task-del{
+    border: none;
+    background: none;
+    color: var(--ink-faint);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    flex-shrink: 0;
+  }
+  .task-del:hover{ color: var(--q1); }
+
+  .empty-hint{
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    padding: 6px 2px;
+    font-style: italic;
+  }
+
+  .add-form{
+    display:flex;
+    gap: 6px;
+    margin-top: auto;
+  }
+
+  .add-form input[type=text]{
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    background: #fff;
+  }
+  .add-form input[type=text]:focus{
+    outline: none;
+    border-color: var(--ink-soft);
+  }
+
+  .add-form input[type=date]{
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 8px 8px;
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--ink-soft);
+    background: #fff;
+    width: 120px;
+  }
+  .add-form input[type=date]:focus{ outline:none; border-color: var(--ink-soft); }
+
+  .add-form button{
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: #fff;
+    border-radius: 7px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .add-form button:hover{ opacity: .85; }
+
+  .completed-section{
+    margin-top: 30px;
+  }
+
+  .completed-toggle{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .completed-toggle .chev{
+    transition: transform .15s ease;
+    font-size: 10px;
+    display: inline-block;
+  }
+  .completed-toggle.open .chev{ transform: rotate(90deg); }
+
+  .completed-list{
+    list-style:none;
+    margin: 0;
+    padding: 0;
+    display:flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .2s ease;
+  }
+
+  .completed-list.open{
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .completed-list .task{
+    background: var(--paper);
+  }
+  .completed-list .task-text{
+    text-decoration: line-through;
+    color: var(--ink-faint);
+  }
+
+  .clear-btn{
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    border: none;
+    background: none;
+    cursor: pointer;
+    margin-left: auto;
+    text-decoration: underline;
+  }
+  .clear-btn:hover{ color: var(--q1); }
+
+  .sync-status{
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+  .sync-status.err{ color: var(--q1); }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Priority Matrix</h1>
+      <div class="subtitle">Sort everything by urgency &amp; importance · most urgent date sits on top</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span class="sync-status" id="syncStatus">connecting…</span>
+      <div class="count-pill" id="countPill">0 open</div>
+    </div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="completed-section">
+    <div class="completed-toggle" id="completedToggle">
+      <span class="chev">&#9656;</span>
+      <span id="completedLabel">Completed (0)</span>
+      <button class="clear-btn" id="clearBtn">clear all</button>
+    </div>
+    <ul class="completed-list" id="completedList"></ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var QUADRANTS = [
+    { id: "q1", title: "Urgent & Important",        sub: "Do now",        cls: "q1" },
+    { id: "q2", title: "Important, Not Urgent",     sub: "Schedule",      cls: "q2" },
+    { id: "q3", title: "Urgent, Not Important",     sub: "Delegate",      cls: "q3" },
+    { id: "q4", title: "Not Urgent, Not Important", sub: "Drop / later",  cls: "q4" }
+  ];
+
+  // ---- Supabase setup ----
+  var SUPABASE_URL = "https://hqgnqqplydvdcvjtpxsp.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_xZrGEu1r8ABr0rbjpbph1g_sehDZ8eP";
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  var LOCAL_CACHE_KEY = "priority_matrix_cache_v1";
+
+  function loadCache(){
+    try{
+      var raw = localStorage.getItem(LOCAL_CACHE_KEY);
+      if(!raw) return [];
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(e){ return []; }
+  }
+
+  function saveCache(){
+    try{
+      localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(tasks));
+    }catch(e){ /* ignore */ }
+  }
+
+  function setSyncStatus(text, isErr){
+    var el = document.getElementById("syncStatus");
+    if(!el) return;
+    el.textContent = text;
+    el.classList.toggle("err", !!isErr);
+  }
+
+  var tasks = loadCache(); // {id, text, date, quadrant, done, created} - optimistic local mirror of the "tasks" table
+
+  async function fetchTasks(){
+    var res = await sb.from('tasks').select('*').order('created', { ascending: false });
+    if(res.error){ throw res.error; }
+    return (res.data || []).map(function(r){
+      return { id: r.id, text: r.text, date: r.date, quadrant: r.quadrant, done: r.done, created: Number(r.created) };
+    });
+  }
+
+  async function insertTask(t){
+    var res = await sb.from('tasks').insert({
+      id: t.id, text: t.text, date: t.date, quadrant: t.quadrant, done: t.done, created: t.created
+    });
+    if(res.error){ throw res.error; }
+  }
+
+  async function updateTask(t){
+    var res = await sb.from('tasks').update({ done: t.done }).eq('id', t.id);
+    if(res.error){ throw res.error; }
+  }
+
+  async function deleteTaskRemote(id){
+    var res = await sb.from('tasks').delete().eq('id', id);
+    if(res.error){ throw res.error; }
+  }
+
+  async function initialSync(){
+    setSyncStatus("syncing…");
+    try{
+      tasks = await fetchTasks();
+      saveCache();
+      setSyncStatus("synced");
+      render();
+    }catch(e){
+      setSyncStatus("offline — using last saved copy", true);
+      render();
+    }
+  }
+
+  // Live updates: if the same list is open on another device, pick up changes automatically
+  sb.channel('tasks-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, function(){
+      fetchTasks().then(function(fresh){
+        tasks = fresh;
+        saveCache();
+        setSyncStatus("synced");
+        render();
+      }).catch(function(){ /* ignore transient errors */ });
+    })
+    .subscribe();
+
+  function uid(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  }
+
+  function fmtDate(d){
+    if(!d) return "";
+    var parts = d.split("-");
+    if(parts.length !== 3) return d;
+    var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return months[parseInt(parts[1],10)-1] + " " + parseInt(parts[2],10);
+  }
+
+  function render(){
+    var grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    var openCount = 0;
+
+    QUADRANTS.forEach(function(q){
+      var qTasks = tasks.filter(function(t){ return t.quadrant === q.id && !t.done; });
+
+      qTasks.sort(function(a, b){
+        if(a.date && b.date) return a.date.localeCompare(b.date);
+        if(a.date && !b.date) return -1;
+        if(!a.date && b.date) return 1;
+        return b.created - a.created;
+      });
+
+      openCount += qTasks.length;
+
+      var section = document.createElement("div");
+      section.className = "quadrant " + q.cls;
+
+      var head = document.createElement("div");
+      head.className = "q-head";
+      head.innerHTML =
+        '<span class="q-dot"></span>' +
+        '<span class="q-title">' + q.title + '</span>' +
+        '<span class="q-sub">' + q.sub + '</span>';
+      section.appendChild(head);
+
+      var body = document.createElement("div");
+      body.className = "q-body";
+
+      var list = document.createElement("ul");
+      list.className = "task-list";
+
+      if(qTasks.length === 0){
+        var hint = document.createElement("div");
+        hint.className = "empty-hint";
+        hint.textContent = "Nothing here yet.";
+        list.appendChild(hint);
+      } else {
+        qTasks.forEach(function(t){
+          list.appendChild(buildTaskRow(t));
+        });
+      }
+
+      body.appendChild(list);
+      body.appendChild(buildAddForm(q.id));
+      section.appendChild(body);
+      grid.appendChild(section);
+    });
+
+    document.getElementById("countPill").textContent = openCount + (openCount === 1 ? " open" : " open");
+
+    renderCompleted();
+    saveCache();
+  }
+
+  function buildTaskRow(t){
+    var li = document.createElement("li");
+    li.className = "task";
+
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!t.done;
+    cb.addEventListener("change", function(){
+      t.done = cb.checked;
+      render();
+      updateTask(t).catch(function(){ setSyncStatus("sync failed — retry by reloading", true); });
+    });
+    li.appendChild(cb);
+
+    var textWrap = document.createElement("div");
+    textWrap.className = "task-text";
+    textWrap.textContent = t.text;
+    li.appendChild(textWrap);
+
+    if(t.date){
+      var dateEl = document.createElement("div");
+      dateEl.className = "task-date";
+      dateEl.textContent = fmtDate(t.date);
+      li.appendChild(dateEl);
+    }
+
+    var del = document.createElement("button");
+    del.className = "task-del";
+    del.setAttribute("aria-label", "Delete task");
+    del.textContent = "\u00D7";
+    del.addEventListener("click", function(){
+      tasks = tasks.filter(function(x){ return x.id !== t.id; });
+      render();
+      deleteTaskRemote(t.id).catch(function(){ setSyncStatus("sync failed — retry by reloading", true); });
+    });
+    li.appendChild(del);
+
+    return li;
+  }
+
+  function buildAddForm(quadrantId){
+    var form = document.createElement("form");
+    form.className = "add-form";
+
+    var input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Add a task\u2026";
+    input.maxLength = 140;
+
+    var dateInput = document.createElement("input");
+    dateInput.type = "date";
+
+    var btn = document.createElement("button");
+    btn.type = "submit";
+    btn.textContent = "Add";
+
+    form.appendChild(input);
+    form.appendChild(dateInput);
+    form.appendChild(btn);
+
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var text = input.value.trim();
+      if(!text) return;
+      var newTask = {
+        id: uid(),
+        text: text,
+        date: dateInput.value || null,
+        quadrant: quadrantId,
+        done: false,
+        created: Date.now()
+      };
+      tasks.push(newTask);
+      render();
+      var fresh = document.querySelector('.quadrant.' + quadrantId + ' .add-form input[type=text]');
+      if(fresh) fresh.focus();
+      insertTask(newTask).catch(function(){ setSyncStatus("sync failed — retry by reloading", true); });
+    });
+
+    return form;
+  }
+
+  function renderCompleted(){
+    var list = document.getElementById("completedList");
+    list.innerHTML = "";
+    var done = tasks.filter(function(t){ return t.done; });
+    done.sort(function(a,b){ return b.created - a.created; });
+
+    document.getElementById("completedLabel").textContent = "Completed (" + done.length + ")";
+
+    if(done.length === 0){
+      var hint = document.createElement("div");
+      hint.className = "empty-hint";
+      hint.textContent = "Tasks you tick off will land here.";
+      list.appendChild(hint);
+      return;
+    }
+
+    done.forEach(function(t){
+      list.appendChild(buildTaskRow(t));
+    });
+  }
+
+  document.getElementById("completedToggle").addEventListener("click", function(e){
+    if(e.target.id === "clearBtn") return;
+    var toggle = document.getElementById("completedToggle");
+    var list = document.getElementById("completedList");
+    toggle.classList.toggle("open");
+    list.classList.toggle("open");
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", function(e){
+    e.stopPropagation();
+    var doneTasks = tasks.filter(function(t){ return t.done; });
+    tasks = tasks.filter(function(t){ return !t.done; });
+    render();
+    doneTasks.forEach(function(t){
+      deleteTaskRemote(t.id).catch(function(){ setSyncStatus("sync failed — retry by reloading", true); });
+    });
+  });
+
+  render();
+  initialSync();
+})();
+</script>
+
+</body>
+</html>
