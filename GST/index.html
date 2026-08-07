@@ -92,6 +92,55 @@ body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:
 .sum-chunk{font-size:12px;color:var(--g400);margin-bottom:20px}
 .sum-btns{display:flex;gap:10px;justify-content:center;margin-top:24px;flex-wrap:wrap}
 #loading{text-align:center;padding:60px 20px;font-size:14px;color:var(--g500)}
+
+@media(max-width:600px){
+  /* Topbar: hide redundant pinfo, tighter padding */
+  .topbar{padding:10px 14px}
+  .pinfo{display:none}
+  .brand{font-size:12px}
+  .mode-btn{padding:6px 12px;font-size:11px}
+
+  /* Progress bar stays at 49px */
+  .pbar-wrap{top:49px}
+
+  /* Study bar: 2-row layout */
+  .study-bar{top:52px;flex-direction:column;align-items:stretch;gap:7px;padding:8px 14px}
+  .chunk-nav{justify-content:space-between}
+  .chunk-sel{flex:1;max-width:none;font-size:12px}
+  .lap-track{justify-content:center}
+  .lap-dot{width:22px;height:22px;font-size:10px}
+  .lap-line{width:8px}
+  .quiz-pill{font-size:9px;padding:2px 7px}
+
+  /* Main: compensate for taller 2-row study bar (~78px) */
+  .main{padding:148px 12px 100px}
+
+  /* Page header: stack controls below label */
+  .page-header{flex-direction:column;align-items:flex-start;gap:8px}
+  .page-controls{flex-wrap:wrap;gap:8px}
+
+  /* Cards */
+  .q-card{padding:14px}
+  .q-text{font-size:14px}
+  .opt{font-size:13px;padding:10px 10px}
+  .expl,.rexpl{font-size:12px}
+
+  /* Score bar: score on top, full-width nav buttons below */
+  .score-bar{flex-direction:column;align-items:stretch;gap:8px;padding:10px 14px}
+  #scoreDis{text-align:center;font-size:12px}
+  .nav-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .nbtn{padding:11px 8px;font-size:13px;text-align:center}
+
+  /* Summary */
+  .sum-score{font-size:52px}
+  .sum-btns{flex-direction:column;align-items:center}
+  .sum-btns .nbtn{width:100%;max-width:280px}
+}
+
+@media(max-width:380px){
+  .chunk-sel{font-size:11px}
+  .q-text{font-size:13px}
+}
 </style>
 </head>
 <body>
