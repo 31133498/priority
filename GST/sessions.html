@@ -202,11 +202,13 @@ function setSubMode(m) {
 function totalItems() {
   return subMode === 'points' ? SESSIONS[curSess].points.length : SESSIONS[curSess].questions.length;
 }
-function totalPages() { return Math.ceil(totalItems() / pageSize); }
+function effectivePageSize() { return subMode === 'quiz' ? 30 : pageSize; }
+function totalPages() { return Math.ceil(totalItems() / effectivePageSize()); }
 function pageItems() {
-  var s = curPage * pageSize;
+  var ps = effectivePageSize();
+  var s = curPage * ps;
   var src = subMode === 'points' ? SESSIONS[curSess].points : SESSIONS[curSess].questions;
-  return src.slice(s, s + pageSize);
+  return src.slice(s, s + ps);
 }
 
 function prevPage() {
@@ -251,6 +253,9 @@ function answer(localIdx, chosen) {
     ex.className = 'rexpl ' + (ok ? 'rc' : 'rw');
   }
   updateScore();
+  if (subMode === 'quiz' && Object.keys(qAnswers).length === SESSIONS[curSess].questions.length) {
+    setTimeout(showSummary, 800);
+  }
 }
 
 function updateScore() {
@@ -294,16 +299,20 @@ function render() {
   var pct = ((curPage + 1) / tp) * 100;
 
   document.getElementById('pbar').style.width = pct + '%';
-  document.getElementById('topInfo').textContent = 'S' + sess.session + ' · ' + (subMode === 'points' ? 'Points ' : 'Quiz ') + (curPage+1) + '/' + tp;
   document.getElementById('sessInfo').textContent = sess.topic;
-  document.getElementById('prevBtn').style.opacity = curPage === 0 ? '0.3' : '1';
 
-  var isLast = curPage >= tp - 1;
-  var nextLbl = 'Next →';
-  if (isLast) {
-    nextLbl = subMode === 'points' ? 'Take Quiz →' : 'Finish →';
+  if (subMode === 'quiz') {
+    document.getElementById('topInfo').textContent = 'S' + sess.session + ' · All 30 Questions';
+    document.getElementById('prevBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'none';
+  } else {
+    document.getElementById('topInfo').textContent = 'S' + sess.session + ' · Points ' + (curPage+1) + '/' + tp;
+    document.getElementById('prevBtn').style.display = '';
+    document.getElementById('nextBtn').style.display = '';
+    document.getElementById('prevBtn').style.opacity = curPage === 0 ? '0.3' : '1';
+    var isLast = curPage >= tp - 1;
+    document.getElementById('nextBtn').textContent = isLast ? 'Take Quiz →' : 'Next →';
   }
-  document.getElementById('nextBtn').textContent = nextLbl;
 
   if (subMode === 'quiz') {
     updateScore();
