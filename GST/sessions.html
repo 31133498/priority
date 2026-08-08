@@ -202,7 +202,7 @@ function setSubMode(m) {
 function totalItems() {
   return subMode === 'points' ? SESSIONS[curSess].points.length : SESSIONS[curSess].questions.length;
 }
-function effectivePageSize() { return subMode === 'quiz' ? 30 : pageSize; }
+function effectivePageSize() { return 30; }
 function totalPages() { return Math.ceil(totalItems() / effectivePageSize()); }
 function pageItems() {
   var ps = effectivePageSize();
@@ -301,18 +301,9 @@ function render() {
   document.getElementById('pbar').style.width = pct + '%';
   document.getElementById('sessInfo').textContent = sess.topic;
 
-  if (subMode === 'quiz') {
-    document.getElementById('topInfo').textContent = 'S' + sess.session + ' · All 30 Questions';
-    document.getElementById('prevBtn').style.display = 'none';
-    document.getElementById('nextBtn').style.display = 'none';
-  } else {
-    document.getElementById('topInfo').textContent = 'S' + sess.session + ' · Points ' + (curPage+1) + '/' + tp;
-    document.getElementById('prevBtn').style.display = '';
-    document.getElementById('nextBtn').style.display = '';
-    document.getElementById('prevBtn').style.opacity = curPage === 0 ? '0.3' : '1';
-    var isLast = curPage >= tp - 1;
-    document.getElementById('nextBtn').textContent = isLast ? 'Take Quiz →' : 'Next →';
-  }
+  document.getElementById('topInfo').textContent = 'S' + sess.session + ' · ' + (subMode === 'points' ? '30 Key Points' : 'All 30 Questions');
+  document.getElementById('prevBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
 
   if (subMode === 'quiz') {
     updateScore();
@@ -353,6 +344,10 @@ function render() {
       card.appendChild(txt);
       area.appendChild(card);
     });
+    var cta = document.createElement('div');
+    cta.style.cssText = 'text-align:center;padding:24px 0 8px';
+    cta.innerHTML = '<button class="nbtn pri" style="padding:12px 32px;font-size:15px" onclick="setSubMode(\'quiz\')">Take Quiz →</button>';
+    area.appendChild(cta);
   } else {
     items.forEach(function(q, i) {
       var localIdx = s + i;
