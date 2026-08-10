@@ -426,7 +426,7 @@ function renderHome(){
     html+='<div class="cat-sec"><div class="cat-hdr">'+e(cat)+'</div><div class="tgrid">'+cards+'</div></div>';
   });
   el('topicList').innerHTML=html;
-  el('sdis').textContent=td+'/'+tt+' topics done \u00b7 '+cov+'/'+CRAM_Q.length+' cram Qs seen';
+  el('sdis').textContent=td+'/'+tt+' topics done \u00b7 '+cramSeen+'/'+CRAM_Q.length+' cram Qs seen';
   el('navBtns').innerHTML=
     '<button class="nbtn sm" onclick="showReset()">Reset</button>'+
     '<button class="nbtn pri" onclick="startGP()">General Practice</button>';
