@@ -644,7 +644,7 @@ function startGP(){
   const fill=unCode.slice(maxCode,maxCode+shortfall);
   const batch=[...codeSlice,...noneSlice,...fill].slice(0,CS).sort(()=>Math.random()-.5);
   const lapNum=PS.gp.n+1;
-  SS={topic:'__gp__',chs:[batch],ci:0,ans:{},done:false,phase:'quiz'};
+  SS={topic:'__gp__',chs:[batch],ci:0,ans:{},done:false,phase:'read'};
   setHash('gp');
   show('study');
   el('topTitle').textContent='Cram Lap '+lapNum;
